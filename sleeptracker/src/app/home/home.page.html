@@ -1,20 +1,50 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Sleep Tracker</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <main class="sleep-page">
+    <section aria-labelledby="log-heading">
+      <h1 id="log-heading">Log overnight sleep</h1>
+      <p>Enter when you went to bed and when you woke up, including both dates.</p>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+      <form (ngSubmit)="saveOvernight()">
+        <label for="bedtime">Bedtime</label>
+        <input id="bedtime" name="bedtime" type="datetime-local" [(ngModel)]="bedtime" required>
+
+        <label for="wake-up">Wake-up</label>
+        <input id="wake-up" name="wakeUp" type="datetime-local" [(ngModel)]="wakeUp" required>
+
+        @if (error) {
+          <p class="error" role="alert">{{ error }}</p>
+        }
+        <ion-button type="submit" expand="block">Save overnight sleep</ion-button>
+        <div role="status">{{ status }}</div>
+      </form>
+    </section>
+
+    <section aria-labelledby="history-heading">
+      <h2 id="history-heading">Overnight history</h2>
+      @if (overnightHistory.length) {
+        <ul class="history">
+          @for (entry of overnightHistory; track entry.id) {
+            <li>
+              <h3>{{ entry.dateString() }}</h3>
+              <p><strong>{{ entry.summaryString() }}</strong></p>
+              <dl>
+                <dt>Bedtime</dt>
+                <dd>{{ entry.sleepStart | date:'MMM d, y, h:mm a' }}</dd>
+                <dt>Wake-up</dt>
+                <dd>{{ entry.sleepEnd | date:'MMM d, y, h:mm a' }}</dd>
+              </dl>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>No overnight sleep logged yet. Your entries will appear here.</p>
+      }
+    </section>
+  </main>
 </ion-content>
