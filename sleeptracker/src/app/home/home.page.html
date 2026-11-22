@@ -46,5 +46,44 @@
         <p>No overnight sleep logged yet. Your entries will appear here.</p>
       }
     </section>
+
+    <section aria-labelledby="sleepiness-log-heading">
+      <h2 id="sleepiness-log-heading">Log daytime sleepiness</h2>
+      <form (ngSubmit)="saveSleepiness()">
+        <label for="sleepiness-rating">Stanford Sleepiness Scale: {{ sleepinessRating }}</label>
+        <input id="sleepiness-rating" name="sleepinessRating" type="range" min="1" max="7" step="1"
+          [(ngModel)]="sleepinessRating">
+        <div class="scale-labels" aria-hidden="true">
+          @for (rating of sleepinessRatings; track rating) {
+            <span>{{ rating }}</span>
+          }
+        </div>
+
+        <label for="sleepiness-time">When you felt this way</label>
+        <input id="sleepiness-time" name="sleepinessTime" type="datetime-local" [(ngModel)]="sleepinessTime" required>
+
+        @if (sleepinessError) {
+          <p class="error" role="alert">{{ sleepinessError }}</p>
+        }
+        <ion-button type="submit" expand="block">Save sleepiness</ion-button>
+        <div role="status">{{ sleepinessStatus }}</div>
+      </form>
+    </section>
+
+    <section aria-labelledby="sleepiness-history-heading">
+      <h2 id="sleepiness-history-heading">Sleepiness history</h2>
+      @if (sleepinessHistory.length) {
+        <ul class="history">
+          @for (entry of sleepinessHistory; track entry.id) {
+            <li>
+              <h3>{{ entry.loggedAt | date:'MMM d, y, h:mm a' }}</h3>
+              <p>{{ entry.summaryString() }}</p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>No daytime sleepiness logged yet. Your entries will appear here.</p>
+      }
+    </section>
   </main>
 </ion-content>

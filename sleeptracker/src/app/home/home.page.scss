@@ -18,7 +18,7 @@ label {
   font-weight: 600;
 }
 
-input {
+input[type='datetime-local'] {
   width: 100%;
   min-height: 44px;
   margin-bottom: 0.5rem;
@@ -28,6 +28,20 @@ input {
   background: var(--ion-background-color, #fff);
   color: var(--ion-text-color, #000);
   font: inherit;
+}
+
+input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  accent-color: var(--ion-color-primary);
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .error {

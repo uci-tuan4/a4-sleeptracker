@@ -1,9 +1,10 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, formatDate } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
 import { SleepService } from '../services/sleep.service';
 import { OvernightSleepData } from '../data/overnight-sleep-data';
+import { StanfordSleepinessData } from '../data/stanford-sleepiness-data';
 
 @Component({
   selector: 'app-home',
@@ -17,6 +18,13 @@ export class HomePage {
   error = '';
   status = '';
   overnightHistory = this.readHistory();
+
+  readonly sleepinessRatings = [1, 2, 3, 4, 5, 6, 7];
+  sleepinessRating = 4;
+  sleepinessTime = this.currentLocalTime();
+  sleepinessError = '';
+  sleepinessStatus = '';
+  sleepinessHistory = this.readSleepinessHistory();
 
   constructor(private sleepService: SleepService) {}
 
@@ -45,5 +53,36 @@ export class HomePage {
   private readHistory(): OvernightSleepData[] {
     return [...SleepService.AllOvernightData]
       .sort((a, b) => b.sleepEnd.getTime() - a.sleepEnd.getTime());
+  }
+
+  saveSleepiness(): void {
+    this.sleepinessError = '';
+    this.sleepinessStatus = '';
+    const rating = this.sleepinessRating;
+    const time = new Date(this.sleepinessTime);
+
+    if (!this.sleepinessRatings.includes(rating)) {
+      this.sleepinessError = 'Choose a sleepiness rating from 1 to 7.';
+      return;
+    }
+    if (Number.isNaN(time.getTime())) {
+      this.sleepinessError = 'Enter the date and time you felt this way.';
+      return;
+    }
+
+    this.sleepService.logSleepinessData(new StanfordSleepinessData(rating, time));
+    this.sleepinessHistory = this.readSleepinessHistory();
+    this.sleepinessRating = 4;
+    this.sleepinessTime = this.currentLocalTime();
+    this.sleepinessStatus = 'Sleepiness saved.';
+  }
+
+  private currentLocalTime(): string {
+    return formatDate(new Date(), "yyyy-MM-dd'T'HH:mm", 'en-US');
+  }
+
+  private readSleepinessHistory(): StanfordSleepinessData[] {
+    return [...SleepService.AllSleepinessData]
+      .sort((a, b) => b.loggedAt.getTime() - a.loggedAt.getTime());
   }
 }
