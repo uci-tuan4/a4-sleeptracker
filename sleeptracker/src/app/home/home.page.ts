@@ -43,7 +43,12 @@ export class HomePage {
       return;
     }
 
-    this.sleepService.logOvernightData(new OvernightSleepData(start, end));
+    try {
+      this.sleepService.logOvernightData(new OvernightSleepData(start, end));
+    } catch {
+      this.error = 'Could not save overnight sleep. Check that browser storage is available and try again.';
+      return;
+    }
     this.overnightHistory = this.readHistory();
     this.bedtime = '';
     this.wakeUp = '';
@@ -70,7 +75,12 @@ export class HomePage {
       return;
     }
 
-    this.sleepService.logSleepinessData(new StanfordSleepinessData(rating, time));
+    try {
+      this.sleepService.logSleepinessData(new StanfordSleepinessData(rating, time));
+    } catch {
+      this.sleepinessError = 'Could not save sleepiness. Check that browser storage is available and try again.';
+      return;
+    }
     this.sleepinessHistory = this.readSleepinessHistory();
     this.sleepinessRating = 4;
     this.sleepinessTime = this.currentLocalTime();
