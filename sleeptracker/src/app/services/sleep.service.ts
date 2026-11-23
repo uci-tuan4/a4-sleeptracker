@@ -60,11 +60,24 @@ export class SleepService {
 		});
 	}
 
+	public removeLog(id: string): void {
+		const logs = SleepService.storedLogs.filter(log => log.id !== id);
+		if (logs.length === SleepService.storedLogs.length) return;
+
+		this.writeLogs(logs);
+		SleepService.AllSleepData = SleepService.AllSleepData.filter(entry => entry.id !== id);
+		SleepService.AllOvernightData = SleepService.AllOvernightData.filter(entry => entry.id !== id);
+		SleepService.AllSleepinessData = SleepService.AllSleepinessData.filter(entry => entry.id !== id);
+	}
+
 	private saveEntry(entry: OvernightSleepData | StanfordSleepinessData, log: StoredLog): void {
-		const logs = [...SleepService.storedLogs, log];
+		this.writeLogs([...SleepService.storedLogs, log]);
+		this.addEntry(entry);
+	}
+
+	private writeLogs(logs: StoredLog[]): void {
 		localStorage.setItem(storageKey, JSON.stringify(logs));
 		SleepService.storedLogs = logs;
-		this.addEntry(entry);
 	}
 
 	private restoreLogs(): void {

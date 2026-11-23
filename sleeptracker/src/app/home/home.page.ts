@@ -17,6 +17,7 @@ export class HomePage {
   wakeUp = '';
   error = '';
   status = '';
+  undoOvernightId: string | null = null;
   overnightHistory = this.readHistory();
 
   readonly sleepinessRatings = [1, 2, 3, 4, 5, 6, 7];
@@ -24,13 +25,18 @@ export class HomePage {
   sleepinessTime = this.currentLocalTime();
   sleepinessError = '';
   sleepinessStatus = '';
+  undoSleepinessId: string | null = null;
   sleepinessHistory = this.readSleepinessHistory();
 
   constructor(private sleepService: SleepService) {}
 
+  jumpToForm(heading: HTMLElement): void {
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ block: 'start' });
+  }
+
   saveOvernight(): void {
     this.error = '';
-    this.status = '';
     const start = new Date(this.bedtime);
     const end = new Date(this.wakeUp);
 
@@ -43,12 +49,14 @@ export class HomePage {
       return;
     }
 
+    const entry = new OvernightSleepData(start, end);
     try {
-      this.sleepService.logOvernightData(new OvernightSleepData(start, end));
+      this.sleepService.logOvernightData(entry);
     } catch {
       this.error = 'Could not save overnight sleep. Check that browser storage is available and try again.';
       return;
     }
+    this.undoOvernightId = entry.id;
     this.overnightHistory = this.readHistory();
     this.bedtime = '';
     this.wakeUp = '';
@@ -62,7 +70,6 @@ export class HomePage {
 
   saveSleepiness(): void {
     this.sleepinessError = '';
-    this.sleepinessStatus = '';
     const rating = this.sleepinessRating;
     const time = new Date(this.sleepinessTime);
 
@@ -75,16 +82,44 @@ export class HomePage {
       return;
     }
 
+    const entry = new StanfordSleepinessData(rating, time);
     try {
-      this.sleepService.logSleepinessData(new StanfordSleepinessData(rating, time));
+      this.sleepService.logSleepinessData(entry);
     } catch {
       this.sleepinessError = 'Could not save sleepiness. Check that browser storage is available and try again.';
       return;
     }
+    this.undoSleepinessId = entry.id;
     this.sleepinessHistory = this.readSleepinessHistory();
     this.sleepinessRating = 4;
     this.sleepinessTime = this.currentLocalTime();
     this.sleepinessStatus = 'Sleepiness saved.';
+  }
+
+  undoSave(type: 'overnight' | 'sleepiness'): void {
+    const id = type === 'overnight' ? this.undoOvernightId : this.undoSleepinessId;
+    if (!id) return;
+
+    try {
+      this.sleepService.removeLog(id);
+    } catch {
+      const message = 'Could not undo the save. The entry is still in your history.';
+      if (type === 'overnight') this.error = message;
+      else this.sleepinessError = message;
+      return;
+    }
+
+    if (type === 'overnight') {
+      this.undoOvernightId = null;
+      this.error = '';
+      this.status = 'Overnight sleep entry removed.';
+      this.overnightHistory = this.readHistory();
+    } else {
+      this.undoSleepinessId = null;
+      this.sleepinessError = '';
+      this.sleepinessStatus = 'Sleepiness entry removed.';
+      this.sleepinessHistory = this.readSleepinessHistory();
+    }
   }
 
   private currentLocalTime(): string {
