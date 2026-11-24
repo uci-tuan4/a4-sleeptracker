@@ -56,14 +56,18 @@ description.  Keeping everything on one page means no switching between logging 
 
 
 11. Which feature choose--using a native device resource, backing up logged data, or both?
-
+I chose to back up logged data rather than use a native device resource.
 
 
 12. If you used a native device resource, what feature did you add? How does this feature change the app's experience for a user?
-
+Not applicable since I chose the local storage option.
 
 
 13. If you backed up logged data, where does it back up to?
-
+Overnight sleep and daytime sleepiness entries are saved in the browser’s local storage and restored when the app reloads. The data 
+stays in that browser and does not sync across devices.
 
 14. How does your app implement or follow principles of good mobile design?
+The home page puts both logging shortcuts at the top, and each save offers an Undo action that removes the entry from history and local 
+storage. Familiar date and time pickers and a 1–7 slider simplify input, while validation prevents incomplete entries and rejects wake-up 
+times at or before bedtime.
